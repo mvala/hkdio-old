@@ -26,3 +26,13 @@
 *.exe
 *.out
 *.app
+
+# Eclipse
+.settings
+.cproject
+.project
+
+# Project specific
+pars
+build
+*.root
