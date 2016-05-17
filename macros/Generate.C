@@ -4,10 +4,10 @@
 #include <HkEvent.h>
 #include <HkTrack.h>
 #endif
-void Generate(Int_t nEvents=10,Int_t nTracks = 100,const char *fname="hlit.root", Int_t idStart=0) {
+void Generate(Int_t nEvents=10,Int_t nTracks = 100,const char *fname="hk.root", Int_t idStart=0) {
 
   TFile *f = TFile::Open(fname,"RECREATE"); 
-  TTree *tree = new TTree("hlitTree","Hlit Tree");
+  TTree *tree = new TTree("hkTree","Hk Tree");
   HkEvent *ev = new HkEvent(0);
   tree->Branch("hkEvent", &ev);
   
@@ -24,6 +24,6 @@ void Generate(Int_t nEvents=10,Int_t nTracks = 100,const char *fname="hlit.root"
     ev->Clear();
   }
   
-  f->Write();
+  f->Write("",TObject::kOverwrite);
   f->Close();
 }

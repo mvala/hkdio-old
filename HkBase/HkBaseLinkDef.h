@@ -6,4 +6,5 @@
 
 #pragma link C++ class HkTrack + ;
 #pragma link C++ class HkEvent + ;
+#pragma link C++ class HkAnalysisSelector+;
 #endif

@@ -3,6 +3,7 @@ set(PACKAGE HkBase)
 set(SRCS 
 HkTrack.cxx
 HkEvent.cxx
+HkAnalysisSelector.cxx
 )
 
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}")
