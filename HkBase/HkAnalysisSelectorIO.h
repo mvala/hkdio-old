@@ -1,19 +1,18 @@
-#ifndef HkAnalysisSelector_H
-#define HkAnalysisSelector_H
+#ifndef HkAnalysisSelectorIO_H
+#define HkAnalysisSelectorIO_H
 
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TSelector.h>
 
-class TTask;
 class TTree;
 class HkEvent;
 
-class HkAnalysisSelector : public TSelector {
+class HkAnalysisSelectorIO : public TSelector {
 
 public:
-  HkAnalysisSelector(TTree *tree = 0);
-  virtual ~HkAnalysisSelector();
+  HkAnalysisSelectorIO(TTree *tree = 0);
+  virtual ~HkAnalysisSelectorIO();
 
   virtual Int_t Version() const { return 2; }
   virtual void Begin(TTree * /*tree*/);
@@ -28,9 +27,12 @@ public:
 private:
   TTree *fChain; //! pointer to the analyzed TTree or TChain
   HkEvent *fEvent;
-  TTask *fTaskMgr;
+  TH1D *fHistPx;
+  TH1D *fHistPy;
+  TH1D *fHistPz;
+  TH2D *fHistPxPy;
 
-  ClassDef(HkAnalysisSelector, 1)
+  ClassDef(HkAnalysisSelectorIO, 1)
 };
 
 #endif
