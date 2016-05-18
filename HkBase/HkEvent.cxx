@@ -2,9 +2,9 @@
 #include <TRandom.h>
 #include "HkEvent.h"
 
-ClassImp(HkEvent)
+ClassImp(HkEvent);
 
-    HkEvent::HkEvent()
+HkEvent::HkEvent()
     : TObject(), fID(0), fVx(0.0), fVy(0.0), fVz(0.0), fNTracks(0), fTracks(0) {
 
 }

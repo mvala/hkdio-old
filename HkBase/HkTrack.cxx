@@ -3,10 +3,9 @@
 #include <TMath.h>
 #include "HkTrack.h"
 
-ClassImp(HkTrack)
+ClassImp(HkTrack);
 
-    HkTrack::HkTrack()
-    : TObject(), fPx(0.0), fPy(0.0), fPz(0.0), fCharge(0) {
+HkTrack::HkTrack() : TObject(), fPx(0.0), fPy(0.0), fPz(0.0), fCharge(0) {
 
   //  Printf("Creating HkTrack ...");
   gRandom->SetSeed(0);

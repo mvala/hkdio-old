@@ -4,7 +4,7 @@ void rootlogon() {
 }
 #else
 void rootlogon() {
-  gSystem->Load("libHkBase.so");
+	gSystem->Load("libHkBase.so");
 }
 #endif
 
