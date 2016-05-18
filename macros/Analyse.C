@@ -1,3 +1,7 @@
+/// \file Analyse.C
+/// \brief Analysis macro of task selector
+///
+
 #if defined(__MAKECINT__) || defined(__MAKECLING__)
 #include <TChain.h>
 #include <HkAnalysisSelector.h>
