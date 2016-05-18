@@ -3,11 +3,43 @@
 
 #include <TObject.h>
 
+///
+/// \class HkTrack
+///
+/// \brief Track object
+///	\author Martin Vala <mvala@cern.ch>
+///
+
 class HkTrack : public TObject {
 
 public:
   HkTrack();
   virtual ~HkTrack();
+
+  /// \fn Double_t GetPx() const
+  /// Momentum x component
+  /// \return Px component
+  ///! \fn Double_t GetPy() const
+  /// Momentum y component
+  /// \return Py component
+  ///! \fn Double_t GetPz() const
+  /// Momentum z component
+  ///\return Pz component
+  ///! \fn Int_t GetCharge() const
+  /// Charge of track
+  ///\return charge
+  ///! \fn void SetPx(Double_t px)
+  /// \param px Input Px
+  /// Sets x component of momentum
+  ///! \fn void SetPy(Double_t py)
+  /// \param py Input Py
+  /// Sets y component of momentum
+  ///! \fn void SetPz(Double_t pz)
+  /// \param pz Input Pz
+  /// Sets z component of momentum
+  ///! \fn void SetCharge(Int_t ch)
+  /// \param ch Input charge
+  /// Sets charge
 
   Double_t GetPx() const { return fPx; }
   Double_t GetPy() const { return fPy; }
@@ -19,18 +51,20 @@ public:
   void SetPz(Double_t pz) { fPz = pz; }
   void SetCharge(Int_t ch) { fCharge = ch; }
 
-  void BuildRandom();
-
   virtual void Print(Option_t *option = "") const;
   virtual void Clear(Option_t *option = "");
 
-private:
-  Double_t fPx;  // Momentum x
-  Double_t fPy;  // Momentum y
-  Double_t fPz;  // Momentum z
-  Int_t fCharge; // Charge
+  void BuildRandom();
 
-  ClassDef(HkTrack, 1)
+private:
+  Double_t fPx;  ///< Momentum x
+  Double_t fPy;  ///< Momentum y
+  Double_t fPz;  ///< Momentum z
+  Int_t fCharge; ///< Charge
+
+  /// \cond CLASSIMP
+  ClassDef(HkTrack, 1);
+  /// \endcond
 };
 
 #endif

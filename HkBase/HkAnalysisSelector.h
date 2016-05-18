@@ -9,12 +9,20 @@ class TTask;
 class TTree;
 class HkEvent;
 
+///
+/// \class HkAnalysisSelector
+///
+/// \brief Task selector
+///	\author Martin Vala <mvala@cern.ch>
+///
+
 class HkAnalysisSelector : public TSelector {
 
 public:
   HkAnalysisSelector(TTree *tree = 0);
   virtual ~HkAnalysisSelector();
 
+  /// Returns selector version
   virtual Int_t Version() const { return 2; }
   virtual void Begin(TTree * /*tree*/);
   virtual void SlaveBegin(TTree *tree);
@@ -26,11 +34,15 @@ public:
   virtual void Terminate();
 
 private:
-  TTree *fChain; //! pointer to the analyzed TTree or TChain
-  HkEvent *fEvent;
-  TTask *fTaskMgr;
+  /// Pointer to the analyzed TTree or TChain
+  TTree *fChain; //!
 
-  ClassDef(HkAnalysisSelector, 1)
+  HkEvent *fEvent; ///< Current Event
+  TTask *fTaskMgr; ///< Task Manager
+
+  /// \cond CLASSIMP
+  ClassDef(HkAnalysisSelector, 1);
+  /// \endcond
 };
 
 #endif

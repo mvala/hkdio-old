@@ -5,15 +5,29 @@
 
 #include "HkAnalysisSelectorIO.h"
 
+/// \cond CLASSIMP
 ClassImp(HkAnalysisSelectorIO);
+/// \endcond
 
 HkAnalysisSelectorIO::HkAnalysisSelectorIO(TTree * /*tree*/)
     : TSelector(), fChain(0), fEvent(0), fHistPx(0), fHistPy(0), fHistPz(0),
-      fHistPxPy(0) {}
+      fHistPxPy(0) {
+  ///
+  /// Default constructor
+  ///
+}
 
-HkAnalysisSelectorIO::~HkAnalysisSelectorIO() { delete fEvent; }
+HkAnalysisSelectorIO::~HkAnalysisSelectorIO() {
+  ///
+  /// Destructor
+  ///
+  delete fEvent;
+}
 
 void HkAnalysisSelectorIO::Init(TTree *tree) {
+  ///
+  /// Intialize tree
+  ///
   if (!tree)
     return;
   fChain = tree;
@@ -21,14 +35,25 @@ void HkAnalysisSelectorIO::Init(TTree *tree) {
 }
 
 Bool_t HkAnalysisSelectorIO::Notify() {
+  ///
+  /// Notify is called when file is changed
+  ///
   if (fChain->GetCurrentFile())
     Printf("File : %s", fChain->GetCurrentFile()->GetName());
   return kTRUE;
 }
 
-void HkAnalysisSelectorIO::Begin(TTree * /*tree*/) {}
+void HkAnalysisSelectorIO::Begin(TTree * /*tree*/) {
+  ///
+  /// First user Function called on client
+  ///
+}
 
 void HkAnalysisSelectorIO::SlaveBegin(TTree * /*tree*/) {
+  ///
+  /// First user Function called on proof worker
+  ///
+
   TString option = GetOption();
 
   fHistPx = new TH1D("hPx", "p_{x}", 100, -5.0, 5.0);
@@ -44,10 +69,11 @@ void HkAnalysisSelectorIO::SlaveBegin(TTree * /*tree*/) {
 }
 
 Bool_t HkAnalysisSelectorIO::Process(Long64_t entry) {
+  ///
+  /// Process event with ID=entry
+  ///
 
   GetEntry(entry);
-
-  // Printf("ID=%lld", fEvent->GetID());
 
   HkTrack *t;
   for (Int_t iTrack = 0; iTrack < fEvent->GetNTrack(); iTrack++) {
@@ -61,9 +87,17 @@ Bool_t HkAnalysisSelectorIO::Process(Long64_t entry) {
   return kTRUE;
 }
 
-void HkAnalysisSelectorIO::SlaveTerminate() {}
+void HkAnalysisSelectorIO::SlaveTerminate() {
+  ///
+  /// Last user Function called on proof worker
+  ///
+}
 
 void HkAnalysisSelectorIO::Terminate() {
+  ///
+  /// Last user Function called on client
+  ///
+
   fHistPx = dynamic_cast<TH1D *>(fOutput->FindObject("hPx"));
   fHistPy = dynamic_cast<TH1D *>(fOutput->FindObject("hPy"));
   fHistPz = dynamic_cast<TH1D *>(fOutput->FindObject("hPz"));
@@ -84,5 +118,8 @@ void HkAnalysisSelectorIO::Terminate() {
 }
 
 Int_t HkAnalysisSelectorIO::GetEntry(Long64_t entry, Int_t getall) {
+  ///
+  /// Gets entry
+  ///
   return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0;
 }

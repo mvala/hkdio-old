@@ -8,12 +8,20 @@
 class TTree;
 class HkEvent;
 
+///
+/// \class HkAnalysisSelectorIO
+///
+/// \brief IO driven selector
+///	\author Martin Vala <mvala@cern.ch>
+///
+
 class HkAnalysisSelectorIO : public TSelector {
 
 public:
   HkAnalysisSelectorIO(TTree *tree = 0);
   virtual ~HkAnalysisSelectorIO();
 
+  /// Returns selector version
   virtual Int_t Version() const { return 2; }
   virtual void Begin(TTree * /*tree*/);
   virtual void SlaveBegin(TTree *tree);
@@ -25,14 +33,18 @@ public:
   virtual void Terminate();
 
 private:
-  TTree *fChain; //! pointer to the analyzed TTree or TChain
-  HkEvent *fEvent;
-  TH1D *fHistPx;
-  TH1D *fHistPy;
-  TH1D *fHistPz;
-  TH2D *fHistPxPy;
+  /// Pointer to the analyzed TTree or TChain
+  TTree *fChain; //!
 
-  ClassDef(HkAnalysisSelectorIO, 1)
+  HkEvent *fEvent; ///< Current Event
+  TH1D *fHistPx;   ///< px distribution
+  TH1D *fHistPy;   ///< py distribution
+  TH1D *fHistPz;   ///< pz distribution
+  TH2D *fHistPxPy; ///< px vs py distribution
+
+  /// \cond CLASSIMP
+  ClassDef(HkAnalysisSelectorIO, 1);
+  /// \endcond
 };
 
 #endif
