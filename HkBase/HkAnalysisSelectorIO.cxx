@@ -5,9 +5,9 @@
 
 #include "HkAnalysisSelectorIO.h"
 
-ClassImp(HkAnalysisSelectorIO)
+ClassImp(HkAnalysisSelectorIO);
 
-    HkAnalysisSelectorIO::HkAnalysisSelectorIO(TTree * /*tree*/)
+HkAnalysisSelectorIO::HkAnalysisSelectorIO(TTree * /*tree*/)
     : TSelector(), fChain(0), fEvent(0), fHistPx(0), fHistPy(0), fHistPz(0),
       fHistPxPy(0) {}
 

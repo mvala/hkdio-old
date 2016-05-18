@@ -5,9 +5,9 @@
 
 #include "HkAnalysisSelector.h"
 
-ClassImp(HkAnalysisSelector)
+ClassImp(HkAnalysisSelector);
 
-    HkAnalysisSelector::HkAnalysisSelector(TTree * /*tree*/)
+HkAnalysisSelector::HkAnalysisSelector(TTree * /*tree*/)
     : TSelector(), fChain(0), fEvent(0), fTaskMgr(0) {}
 
 HkAnalysisSelector::~HkAnalysisSelector() { delete fEvent; }
