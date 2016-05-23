@@ -24,6 +24,7 @@ add_custom_target(par-all ALL)
 include(CPack)
 
 add_subdirectory(HkBase)
+add_subdirectory(HkTasks)
 add_subdirectory(doc)
 
 CONFIGURE_FILE(
