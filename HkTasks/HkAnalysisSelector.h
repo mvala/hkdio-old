@@ -8,7 +8,7 @@
 class TTask;
 class TTree;
 class HkEvent;
-
+class HkTask;
 ///
 /// \class HkAnalysisSelector
 ///
@@ -33,12 +33,19 @@ public:
   virtual void SlaveTerminate();
   virtual void Terminate();
 
+  /// \fn void SetTaskManager(TTask *tm)
+  /// \param tm Task manager
+  ///
+  /// Sets task manager
+
+  void SetTaskManager(HkTask *tm) { fTaskMgr = tm; }
+
 private:
   /// Pointer to the analyzed TTree or TChain
   TTree *fChain; //!
 
-  HkEvent *fEvent; ///< Current Event
-  TTask *fTaskMgr; ///< Task Manager
+  HkEvent *fEvent;  ///< Current Event
+  HkTask *fTaskMgr; ///< Task Manager
 
   /// \cond CLASSIMP
   ClassDef(HkAnalysisSelector, 1);

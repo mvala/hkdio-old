@@ -124,6 +124,14 @@ void HkTask::ExecuteTasks(Option_t *option) {
   }
 }
 
+void HkTask::Init(Option_t *option) {
+  TIter next(fTasks);
+  HkTask *t;
+  while ((t = (HkTask *)next())) {
+    t->Init(option);
+  }
+}
+
 void HkTask::Exec(Option_t * /*option*/) {}
 
 void HkTask::ExecPost(Option_t * /*option*/) {}

@@ -2,6 +2,7 @@
 #include <TTree.h>
 #include <TCanvas.h>
 #include "HkEvent.h"
+#include "HkTask.h"
 
 #include "HkAnalysisSelector.h"
 
@@ -30,7 +31,11 @@ void HkAnalysisSelector::Init(TTree *tree) {
   if (!tree)
     return;
   fChain = tree;
+  fEvent = new HkEvent(0);
+
   fChain->SetBranchAddress("hkEvent", &fEvent);
+  if (fTaskMgr)
+    fTaskMgr->GetOutput()->Add(fEvent);
 }
 
 Bool_t HkAnalysisSelector::Notify() {
@@ -54,6 +59,9 @@ void HkAnalysisSelector::SlaveBegin(TTree * /*tree*/) {
   ///
 
   TString option = GetOption();
+
+  if (fTaskMgr)
+    fTaskMgr->Init("");
 }
 
 Bool_t HkAnalysisSelector::Process(Long64_t entry) {
@@ -63,7 +71,11 @@ Bool_t HkAnalysisSelector::Process(Long64_t entry) {
 
   GetEntry(entry);
 
-  Printf("Event ID=%lld", fEvent->GetID());
+  if (entry % 1000 == 0)
+    Printf("Event ID=%lld", fEvent->GetID());
+
+  if (fTaskMgr)
+    fTaskMgr->ExecuteTask("");
 
   return kTRUE;
 }

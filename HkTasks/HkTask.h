@@ -21,6 +21,10 @@ public:
   /// Adds task
   /// \param task Task to add
   ///
+  /// \fn virtual void Init(Option_t *option)
+  /// Init function
+  /// \param option Inti option
+  ///
   /// \fn virtual void Exec(Option_t *option);
   /// User's function
   /// \param option Task option
@@ -60,6 +64,7 @@ public:
   virtual void ExecuteTask(Option_t *option);
   virtual void ExecuteTasks(Option_t *option);
 
+  virtual void Init(Option_t *option);
   virtual void Exec(Option_t *option);
   virtual void ExecPost(Option_t *option);
 
