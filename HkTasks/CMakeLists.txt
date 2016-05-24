@@ -2,6 +2,7 @@ set(PACKAGE HkTasks)
 
 set(SRCS 
 HkTask.cxx
+HkTaskInput.cxx
 HkTaskRsn.cxx
 )
 

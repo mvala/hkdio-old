@@ -3,16 +3,26 @@
 
 #include <HkTask.h>
 
+///
+/// \class HkTaskExample
+///
+/// \brief Example task
+///	\author Martin Vala <mvala@cern.ch>
+///
+
 class HkTaskExample : public HkTask {
 
 public:
-  HkTaskExample(const char *name = "rsn", const char *title = "");
+  HkTaskExample(const char *name = "HkTaskExample",
+                const char *title = "HkTaskExample title");
   virtual ~HkTaskExample();
 
   virtual void Exec(Option_t *option);
 
 private:
-  ClassDef(HkTaskExample, 1)
+  /// \cond CLASSIMP
+  ClassDef(HkTaskExample, 1);
+  /// \endcond
 };
 
 #endif

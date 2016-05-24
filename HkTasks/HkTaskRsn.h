@@ -13,7 +13,8 @@
 class HkTaskRsn : public HkTask {
 
 public:
-  HkTaskRsn(const char *name = "rsn", const char *title = "");
+  HkTaskRsn(const char *name = "HkTaskRsn",
+            const char *title = "HkTaskRsn title");
   virtual ~HkTaskRsn();
 
   virtual void Exec(Option_t *option);

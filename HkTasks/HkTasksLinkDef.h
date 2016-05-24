@@ -5,5 +5,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class HkTask + ;
+#pragma link C++ class HkTaskInput + ;
 #pragma link C++ class HkTaskRsn + ;
 #endif

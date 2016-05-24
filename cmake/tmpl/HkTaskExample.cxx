@@ -1,10 +1,23 @@
 #include "HkTaskExample.h"
 
-ClassImp(HkTaskExample)
+/// \cond CLASSIMP
+ClassImp(HkTaskExample);
+/// \endcond
+HkTaskExample::HkTaskExample(const char *name, const char *title)
+    : HkTask(name, title) {
+  ///
+  /// Default constructor
+  ///
+}
 
-    HkTaskExample::HkTaskExample(const char *name, const char *title)
-    : HkTask(name, title) {}
+HkTaskExample::~HkTaskExample() {
+  ///
+  /// Destructor
+  ///
+}
 
-HkTaskExample::~HkTaskExample() {}
-
-void HkTaskExample::Exec(Option_t * /*option*/) {}
+void HkTaskExample::Exec(Option_t * /*option*/) {
+  ///
+  /// Main function to process resonance study
+  ///
+}
