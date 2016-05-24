@@ -7,4 +7,6 @@
 #pragma link C++ class HkTask + ;
 #pragma link C++ class HkTaskInput + ;
 #pragma link C++ class HkTaskRsn + ;
+#pragma link C++ class HkAnalysisSelector + ;
+#pragma link C++ class HkAnalysisSelectorIO + ;
 #endif

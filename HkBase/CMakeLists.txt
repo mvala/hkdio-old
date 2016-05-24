@@ -3,15 +3,20 @@ set(PACKAGE HkBase)
 set(SRCS 
 HkTrack.cxx
 HkEvent.cxx
-HkAnalysisSelector.cxx
-HkAnalysisSelectorIO.cxx
 )
 
-include_directories( "${CMAKE_CURRENT_SOURCE_DIR}")
-link_directories( "${CMAKE_CURRENT_BINARY_DIR}")
+set (MY_INCLUDE_DIRS
+${CMAKE_CURRENT_SOURCE_DIR}
+${ROOT_INCLUDE_DIR}
+)
 
-include_directories(${ROOT_INCLUDE_DIR})
-link_directories( ${ROOT_LIBRARY_DIR} )
+set (MY_LINK_DIRS
+${CMAKE_CURRENT_BINARY_DIR}
+${ROOT_LIBRARY_DIR}
+)
+
+include_directories( ${MY_INCLUDE_DIRS} )
+link_directories( "${MY_LINK_DIRS}")
 
 String(REPLACE ".cxx" ".h" HDRS "${SRCS}")
 ROOT_GENERATE_DICTIONARY( G__${PACKAGE} ${HDRS} LINKDEF ${PACKAGE}LinkDef.h)
