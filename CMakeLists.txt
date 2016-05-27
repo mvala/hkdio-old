@@ -32,6 +32,7 @@ include(CPack)
 
 add_subdirectory(HkBase)
 add_subdirectory(HkTasks)
+add_subdirectory(HkALICE)
 add_subdirectory(doc)
 
 CONFIGURE_FILE(
