@@ -37,3 +37,6 @@ pars
 build
 *.root
 share
+lib
+lib64
+include

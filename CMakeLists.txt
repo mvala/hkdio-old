@@ -13,10 +13,12 @@ set(CPACK_SOURCE_IGNORE_FILES
 add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source) 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -std=c++11")
+set(CMAKE_INSTALL_LIBDIR lib)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 find_package(ROOT REQUIRED)
+include(RootNewMacros)
 include(root-utils)
 
 add_custom_target(par-all ALL)
