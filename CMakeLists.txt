@@ -18,8 +18,13 @@ set(CMAKE_INSTALL_LIBDIR lib)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 find_package(ROOT REQUIRED)
-include(RootNewMacros)
+string(REPLACE "." ";" VERSION_LIST ${ROOT_VERSION})
+list(GET VERSION_LIST 0 ROOT_VERSION_MAJOR)
+if (ROOT_VERSION_MAJOR GREATER 5)
+  include(RootNewMacros)
+endif (ROOT_VERSION_MAJOR GREATER 5)
 include(root-utils)
+find_package(AliRoot)
 
 add_custom_target(par-all ALL)
 
