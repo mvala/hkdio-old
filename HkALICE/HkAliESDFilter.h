@@ -18,6 +18,7 @@
 class TH1F;
 class TList;
 class AliESDtrackCuts;
+class HkEvent;
 
 class HkAliESDFilter : public AliAnalysisTaskSE {
 public:
@@ -30,13 +31,19 @@ public:
   virtual void Terminate(Option_t *);
 
 private:
-  TList *fOutput;              // Output list
-  AliESDtrackCuts *fTrackCuts; // Track cuts
+  TList *fOutput;        ///< Output list
+  TTree *fTreeAnalysis;  ///< Tree with analysis parameters
+  TTree *fTreeCutParams; ///< Tree with cut parameters
 
-  HkAliESDFilter(const HkAliESDFilter &);            // not implemented
-  HkAliESDFilter &operator=(const HkAliESDFilter &); // not implemented
+  AliESDtrackCuts *fTrackCuts; ///< Track cuts
+  /// HkEvent
+  HkEvent *fHkEvent; //!
 
+  HkAliESDFilter(const HkAliESDFilter &);            /// not implemented
+  HkAliESDFilter &operator=(const HkAliESDFilter &); /// not implemented
+  /// \cond CLASSIMP
   ClassDef(HkAliESDFilter, 1); // example of analysis
+  /// \endcond
 };
 
 #endif

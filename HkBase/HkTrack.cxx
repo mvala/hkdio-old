@@ -54,3 +54,12 @@ void HkTrack::Clear(Option_t *) {
   fPy = 0;
   fPz = 0;
 }
+
+void HkTrack::SetP(Double_t *p) {
+  ///
+  /// Sets all components of momentum
+  ///
+  fPx = p[0];
+  fPy = p[1];
+  fPz = p[2];
+}

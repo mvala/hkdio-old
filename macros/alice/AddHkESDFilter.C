@@ -24,9 +24,13 @@ AliAnalysisTaskSE *AddHkESDFilter() {
       "HkAliceESDFilter", TList::Class(), AliAnalysisManager::kOutputContainer,
       outputFileName.Data());
 
+  AliAnalysisDataContainer *cTreeAna =
+      mgr->CreateContainer("hkTree", TTree::Class(),
+                           AliAnalysisManager::kOutputContainer, "hk.root");
+
   // connect input/output
   mgr->ConnectInput(task, 0, cinput);
   mgr->ConnectOutput(task, 1, coutput1);
-
+  mgr->ConnectOutput(task, 2, cTreeAna);
   return task;
 }

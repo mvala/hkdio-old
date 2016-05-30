@@ -45,17 +45,19 @@
 #include "AliAODEvent.h"
 #include "AliMCEvent.h"
 
-ClassImp(HkAliESDFilter)
+#include "HkEvent.h"
 
-    //________________________________________________________________________
-    HkAliESDFilter::HkAliESDFilter() // All data members should be initialised
-                                     // here
-    : AliAnalysisTaskSE(),
-      fOutput(0),
-      fTrackCuts(
-          0) // The last in the above list should not have a comma after it
-{
-  // Dummy constructor ALWAYS needed for I/O.
+/// \cond CLASSIMP
+ClassImp(HkAliESDFilter);
+/// \endcond
+
+//________________________________________________________________________
+HkAliESDFilter::HkAliESDFilter()
+    : AliAnalysisTaskSE(), fOutput(0), fTreeAnalysis(0), fTreeCutParams(0),
+      fTrackCuts(0), fHkEvent(0) {
+  ///
+  /// Dummy constructor ALWAYS needed for I/O.
+  ///
 }
 
 //________________________________________________________________________
@@ -63,33 +65,47 @@ HkAliESDFilter::HkAliESDFilter(
     const char *name) // All data members should be initialised here
     : AliAnalysisTaskSE(name),
       fOutput(0),
-      fTrackCuts(
-          0) // The last in the above list should not have a comma after it
-{
-  // Constructor
-  // Define input and output slots here (never in the dummy constructor)
-  // Input slot #0 works with a TChain - it is connected to the default input
-  // container
+      fTreeAnalysis(0),
+      fTreeCutParams(0),
+      fTrackCuts(0),
+      fHkEvent(0) {
+  ///
+  /// Constructor
+  /// Define input and output slots here (never in the dummy constructor)
+  /// Input slot #0 works with a TChain - it is connected to the default input
+  /// container
+  ///
+
   // Output slot #1 writes into a TH1 container
   DefineOutput(1, TList::Class()); // for output list
+  DefineOutput(2, TTree::Class()); // for tree with analysis data
+  DefineOutput(3, TTree::Class()); // for tree with cut parameters
 }
 
 //________________________________________________________________________
 HkAliESDFilter::~HkAliESDFilter() {
-  // Destructor. Clean-up the output list, but not the histograms that are put
-  // inside
-  // (the list is owner and will clean-up these histograms). Protect in PROOF
+  ///
+  /// Destructor. Clean-up the output list, but not the histograms that are put
+  /// inside (the list is owner and will clean-up these histograms).
+  ///
+
+  // Protect in PROOF
   // case.
   if (fOutput && !AliAnalysisManager::GetAnalysisManager()->IsProofMode()) {
     delete fOutput;
+    delete fTreeAnalysis;
+    delete fTreeCutParams;
   }
   delete fTrackCuts;
+  delete fHkEvent;
 }
 
 //________________________________________________________________________
 void HkAliESDFilter::UserCreateOutputObjects() {
-  // Create histograms
-  // Called once (on the worker node)
+  ///
+  /// Create histograms
+  /// Called once (on the worker node)
+  ///
 
   fOutput = new TList();
   fOutput->SetOwner(); // IMPORTANT!
@@ -129,15 +145,25 @@ void HkAliESDFilter::UserCreateOutputObjects() {
   // To change cuts after selecting some default set, one can use
   // esdtrackcuts->SetMinNClustersTPC(70) for example
 
+  // Create trees
+
+  OpenFile(2, "RECREATE");
+  fTreeAnalysis = new TTree("hkTree", "Hk Tree");
+  fHkEvent = new HkEvent(0);
+  fTreeAnalysis->Branch("hkEvent", &fHkEvent);
+
   // NEW HISTO added to fOutput here
-  PostData(1, fOutput); // Post data for ALL output slots >0 here, to get at
-                        // least an empty histogram
+  PostData(1, fOutput);
+  PostData(2, fTreeAnalysis);
+  PostData(3, fTreeCutParams);
 }
 
 //________________________________________________________________________
 void HkAliESDFilter::UserExec(Option_t *) {
-  // Main loop
-  // Called for each event
+  ///
+  /// Main loop
+  /// Called for each event
+  ///
 
   // Create pointer to reconstructed event
   AliVEvent *event = InputEvent();
@@ -149,16 +175,33 @@ void HkAliESDFilter::UserExec(Option_t *) {
   AliESDEvent *esd = dynamic_cast<AliESDEvent *>(event);
   if (esd) {
 
+    fHkEvent->Clear();
+
+    fHkEvent->SetID(esd->GetEventNumberInFile());
     printf("REC=%d", esd->GetNumberOfTracks());
+
+    Int_t ntracksRec = esd->GetNumberOfTracks();
+    AliESDtrack *esdTrack = 0;
+    HkTrack *hkTrack;
+    Double_t p[3];
+    for (Int_t i = 0; i < ntracksRec; i++) {
+      esdTrack = (AliESDtrack *)event->GetTrack(i);
+      hkTrack = fHkEvent->AddTrack();
+      esdTrack->GetPxPyPz(p);
+      hkTrack->SetP(p);
+      hkTrack->SetCharge(esdTrack->Charge());
+    }
+    fTreeAnalysis->Fill();
+
     AliMCEvent *mcEvent = MCEvent();
     if (mcEvent) {
-      Printf(" MC=%d", mcEvent->GetNumberOfTracks());
 
       // Track loop for reconstructed event
-      Int_t ntracks = mcEvent->GetNumberOfTracks();
-      for (Int_t i = 0; i < ntracks; i++) {
-        AliMCParticle *esdMcTrack = (AliMCParticle *)mcEvent->GetTrack(
-            i); // pointer to reconstructed to track
+      Int_t ntracksMc = mcEvent->GetNumberOfTracks();
+      Printf(" MC=%d", ntracksMc);
+      AliMCParticle *esdMcTrack;
+      for (Int_t i = 0; i < ntracksMc; i++) {
+        esdMcTrack = (AliMCParticle *)mcEvent->GetTrack(i);
         if (!esdMcTrack) {
           AliError(Form("ERROR: Could not retrieve esdtrack %d", i));
           continue;
@@ -171,12 +214,15 @@ void HkAliESDFilter::UserExec(Option_t *) {
   // NEW HISTO should be filled before this point, as PostData puts the
   // information for this iteration of the UserExec in the container
   PostData(1, fOutput);
+  PostData(2, fTreeAnalysis);
+  PostData(3, fTreeCutParams);
 }
 
-//________________________________________________________________________
 void HkAliESDFilter::Terminate(Option_t *) {
-  // Draw result to screen, or perform fitting, normalizations
-  // Called once at the end of the query
+  ///
+  /// Draw result to screen, or perform fitting, normalizations
+  /// Called once at the end of the query
+  ///
   fOutput = dynamic_cast<TList *>(GetOutputData(1));
   if (!fOutput) {
     Printf("ERROR: could not retrieve TList fOutput");

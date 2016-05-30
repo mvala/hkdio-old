@@ -90,6 +90,11 @@ private:
   /// Array with all tracks
   TClonesArray *fTracks; //->
 
+  // TODO
+  /// Copy constructor
+  HkEvent(const HkEvent &);            /// not implemented
+  HkEvent &operator=(const HkEvent &); /// not implemented
+
   /// \cond CLASSIMP
   ClassDef(HkEvent, 1);
   /// \endcond
