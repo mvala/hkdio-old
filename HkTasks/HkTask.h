@@ -32,6 +32,10 @@ public:
   /// \fn virtual void ExecPost(Option_t *option);
   /// User's function executed after all sub tasks
   /// \param option Task option
+  ////
+  /// \fn virtual void Finish(Option_t *option);
+  /// User's function executed after all sub tasks
+  /// \param option Task option
   ///
   /// \fn void SetParent(HkTask *task)
   /// Sets parent task
@@ -67,6 +71,7 @@ public:
   virtual void Init(Option_t *option);
   virtual void Exec(Option_t *option);
   virtual void ExecPost(Option_t *option);
+  virtual void Finish(Option_t *option);
 
   void SetParent(HkTask *task) { fParent = task; }
   HkTask *GetParent() const { return fParent; }

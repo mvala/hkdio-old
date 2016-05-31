@@ -1,4 +1,5 @@
 function(add_par PACKAGE)
+if(PAR)
   if(PACKAGE)
   message(STATUS "Generating ${PACKAGE}")
   add_custom_target(${PACKAGE}.par
@@ -19,4 +20,5 @@ function(add_par PACKAGE)
   add_dependencies(par-all ${PACKAGE}.par)
 
   endif(PACKAGE)
+endif()
 endfunction(add_par PACKAGE)

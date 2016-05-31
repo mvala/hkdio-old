@@ -61,13 +61,14 @@ void HkTaskRsn::Exec(Option_t * /*option*/) {
   //  Printf("\t%s %p", GetName(), fEvent);
 
   Long64_t nTracks = fEvent->GetNTrack();
-
   Long64_t i, j;
   HkTrack *t1, *t2;
+#pragma omp parallel for private(i, j, t1, t2) firstprivate(nTracks)
   for (i = 0; i < nTracks; i++) {
     if (i % fNSkip > 0)
       continue;
     t1 = (HkTrack *)fEvent->GetTrack(i);
+    //#pragma omp parallel for
     for (j = 0; j < nTracks; j++) {
       if (i == j)
         continue;
@@ -79,12 +80,21 @@ void HkTaskRsn::Exec(Option_t * /*option*/) {
       fFillTmp[0] = t1->GetPx() + t2->GetPx();
       fFillTmp[1] = t1->GetPy() + t2->GetPy();
       fFillTmp[2] = nTracks;
+      //#pragma omp critical
+      //      {
       if (t1->GetCharge() == 1 && t2->GetCharge() == -1)
         fSigBg->Fill(fFillTmp);
       if (t1->GetCharge() == 1 && t2->GetCharge() == 1)
         fBgLikePP->Fill(fFillTmp);
       if (t1->GetCharge() == -1 && t2->GetCharge() == -1)
         fBgLikeMM->Fill(fFillTmp);
+      //      }
     }
   }
+}
+
+void HkTaskRsn::Finish(Option_t * /*option*/) {
+  Printf("name=%s", GetName());
+  if (fSigBg)
+    fSigBg->Print();
 }

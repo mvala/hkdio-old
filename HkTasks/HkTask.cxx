@@ -65,7 +65,6 @@ void HkTask::ExecuteTask(Option_t *option) {
   }
 
   Exec(option);
-
   fHasExecuted = kTRUE;
   ExecuteTasks(option);
   ExecPost(option);
@@ -85,43 +84,66 @@ void HkTask::ExecuteTasks(Option_t *option) {
   ///
   /// Execute all the subtasks of a task.
   ///
-  TIter next(fTasks);
+
   HkTask *task;
-  while ((task = (HkTask *)next())) {
-    if (fgBreakPoint)
-      return;
+  Int_t i;
+#pragma omp parallel for private(i, task)
+  for (i = 0; i < fTasks->GetEntries(); i++) {
+    //    Printf("task %d", i);
+    task = (HkTask *)fTasks->At(i);
     if (!task->IsActive())
       continue;
     if (task->fHasExecuted) {
       task->ExecuteTasks(option);
       continue;
     }
-    if (task->fBreakin == 1) {
-      printf("Break at entry of task: %s\n", task->GetName());
-      fgBreakPoint = this;
-      task->fBreakin++;
-      return;
-    }
-
-    if (gDebug > 1) {
-      TROOT::IndentLevel();
-      std::cout << "Execute task:" << task->GetName() << " : "
-                << task->GetTitle() << std::endl;
-      TROOT::IncreaseDirLevel();
+    if (task->fHasExecuted) {
+      task->ExecuteTasks(option);
+      continue;
     }
     task->Exec(option);
     task->fHasExecuted = kTRUE;
     task->ExecuteTasks(option);
     task->ExecPost(option);
-    if (gDebug > 1)
-      TROOT::DecreaseDirLevel();
-    if (task->fBreakout == 1) {
-      printf("Break at exit of task: %s\n", task->GetName());
-      fgBreakPoint = this;
-      task->fBreakout++;
-      return;
-    }
   }
+
+  //  TIter next(fTasks);
+  //  HkTask *task;
+  //  while ((task = (HkTask *)next())) {
+  //    if (fgBreakPoint)
+  //      return;
+  //    if (!task->IsActive())
+  //      continue;
+  //    if (task->fHasExecuted) {
+  //      task->ExecuteTasks(option);
+  //      continue;
+  //    }
+  //    if (task->fBreakin == 1) {
+  //      printf("Break at entry of task: %s\n", task->GetName());
+  //      fgBreakPoint = this;
+  //      task->fBreakin++;
+  //      return;
+  //    }
+  //
+  //    if (gDebug > 1) {
+  //      TROOT::IndentLevel();
+  //      std::cout << "Execute task:" << task->GetName() << " : "
+  //                << task->GetTitle() << std::endl;
+  //      TROOT::IncreaseDirLevel();
+  //    }
+  //    task->Exec(option);
+  //    task->fHasExecuted = kTRUE;
+  //    task->ExecuteTasks(option);
+  //    task->ExecPost(option);
+  //    if (gDebug > 1)
+  //      TROOT::DecreaseDirLevel();
+  //    if (task->fBreakout == 1) {
+  //      printf("Break at exit of task: %s\n", task->GetName());
+  //      fgBreakPoint = this;
+  //      task->fBreakout++;
+  //      return;
+  //    }
+  //  }
 }
 
 void HkTask::Init(Option_t *option) {
@@ -135,6 +157,14 @@ void HkTask::Init(Option_t *option) {
 void HkTask::Exec(Option_t * /*option*/) {}
 
 void HkTask::ExecPost(Option_t * /*option*/) {}
+
+void HkTask::Finish(Option_t *option) {
+  TIter next(fTasks);
+  HkTask *t;
+  while ((t = (HkTask *)next())) {
+    t->Finish(option);
+  }
+}
 
 void HkTask::Browse(TBrowser *b) {
   fTasks->Browse(b);

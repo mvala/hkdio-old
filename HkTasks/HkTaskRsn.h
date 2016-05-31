@@ -28,6 +28,7 @@ public:
 
   virtual void Init(Option_t *option);
   virtual void Exec(Option_t *option);
+  virtual void Finish(Option_t *option);
 
   void SetNSkip(Long64_t nSkip) { fNSkip = nSkip; }
 

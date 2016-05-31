@@ -71,8 +71,9 @@ Bool_t HkAnalysisSelector::Process(Long64_t entry) {
 
   GetEntry(entry);
 
-  if (entry % 1000 == 0)
-    Printf("Event ID=%lld", fEvent->GetID());
+  if (entry % 1 == 0)
+    Printf("Event %lld ID=%lld nTracks=%lld", entry, fEvent->GetID(),
+           fEvent->GetNTrack());
 
   if (fTaskMgr)
     fTaskMgr->ExecuteTask("");
@@ -84,6 +85,8 @@ void HkAnalysisSelector::SlaveTerminate() {
   ///
   /// Last user Function called on proof worker
   ///
+  if (fTaskMgr)
+    fTaskMgr->Finish("");
 }
 
 void HkAnalysisSelector::Terminate() {

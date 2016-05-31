@@ -7,7 +7,8 @@
 #include <HkAnalysisSelector.h>
 #endif
 void Analyse(Int_t nTasks = 10, const char *fname = "hk.root",
-             Long64_t nEvents = 0, Long64_t idStart = 0, Long64_t nSkip = 1) {
+             Long64_t nEvents = 0, Long64_t idStart = 0, Long64_t nSkip = 1,
+             Bool_t eqTasks = kTRUE) {
   TChain *ch = new TChain("hkTree");
   ch->AddFile(fname);
 
@@ -16,9 +17,15 @@ void Analyse(Int_t nTasks = 10, const char *fname = "hk.root",
   HkTaskInput *tm = new HkTaskInput("hkTaskMgr", "Hk task manager");
 
   HkTaskRsn *tRsn;
+  Int_t nskip;
   for (Int_t i = 0; i < nTasks; i++) {
     tRsn = new HkTaskRsn(TString::Format("rsn%05d", i).Data());
-    tRsn->SetNSkip(nSkip);
+    if (eqTasks)
+      nskip = nSkip;
+    else
+      nskip = i % nSkip + 1;
+    tRsn->SetNSkip(nskip);
+    Printf("Task name=%s nSkip=%d", tRsn->GetName(), nskip);
     tm->Add(tRsn);
   }
 
