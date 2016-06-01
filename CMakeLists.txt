@@ -26,13 +26,29 @@ endif (ROOT_VERSION_MAJOR GREATER 5)
 include(root-utils)
 find_package(AliRoot)
 
+
+option (OPENMP "Use OpenMP" ON)
+
 if(OPENMP)
 find_package(OpenMP)
 if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    option (USE_OPENMP "Use OpenMP" ON)
 endif()
 endif()
+
+# configure a header file to pass some of the CMake settings
+# to the source code
+configure_file (
+  "${PROJECT_SOURCE_DIR}/HkdioConfig.h.in"
+  "${PROJECT_BINARY_DIR}/HkdioConfig.h"
+  )
+
+# add the binary tree to the search path for include files
+# so that we will find TutorialConfig.h
+include_directories("${PROJECT_BINARY_DIR}")
+
 
 if(PAR)
 add_custom_target(par-all ALL)

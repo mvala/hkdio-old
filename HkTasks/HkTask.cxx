@@ -1,3 +1,7 @@
+#include <HkdioConfig.h>
+#ifdef USE_OPENMP
+#include <omp.h>
+#endif
 #include <TDirectory.h>
 #include <TROOT.h>
 #include <Riostream.h>
@@ -87,8 +91,14 @@ void HkTask::ExecuteTasks(Option_t *option) {
 
   HkTask *task;
   Int_t i;
-#pragma omp parallel for private(i, task)
+#ifdef USE_OPENMP
+#pragma omp parallel for schedule(guided) private(i, task)
+#endif
   for (i = 0; i < fTasks->GetEntries(); i++) {
+#ifdef USE_OPENMP
+    if (!i)
+      Printf("HkTask num of threads : %d", omp_get_num_threads());
+#endif
     //    Printf("task %d", i);
     task = (HkTask *)fTasks->At(i);
     if (!task->IsActive())
