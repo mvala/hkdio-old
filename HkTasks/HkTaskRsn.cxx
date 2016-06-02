@@ -68,14 +68,15 @@ void HkTaskRsn::Exec(Option_t * /*option*/) {
   Long64_t nTracks = fEvent->GetNTrack();
   Long64_t i, j;
   HkTrack *t1, *t2;
-#ifdef USE_OPENMP
-#pragma omp parallel for private(i, j, t1, t2) firstprivate(nTracks)
-#endif
+  //#ifdef USE_OPENMP
+  //#pragma omp parallel for private(i, j, t1, t2) firstprivate(nTracks)
+  // num_threads(2)
+  //#endif
   for (i = 0; i < nTracks; i++) {
-#ifdef USE_OPENMP
-    if (!i)
-      Printf("HkTaskRsn num of threads : %d", omp_get_num_threads());
-#endif
+    //#ifdef USE_OPENMP
+    //    if (!i)
+    //      Printf("HkTaskRsn num of threads : %d", omp_get_num_threads());
+    //#endif
     if (i % fNSkip > 0)
       continue;
     t1 = (HkTrack *)fEvent->GetTrack(i);
