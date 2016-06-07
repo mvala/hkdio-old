@@ -140,6 +140,7 @@ int main(int argc, char **argv) {
       else
         wk_bind = zsys_sprintf("%s%s:%d", url_worker, hostname, i);
       zstr_sendx(worker, "PUBLISH", wk_name, wk_bind, NULL);
+      zstr_free(&wk_name);
       zstr_free(&wk_bind);
       zpoller_add(poller, zactor_sock(worker));
       zlist_append(list_workers, worker);
