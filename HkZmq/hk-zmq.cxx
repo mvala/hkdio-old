@@ -17,6 +17,7 @@ void help(FILE *stream, int exit_code) {
           "  -w --worker <url>           Worker prefix url (default off)\n"
           "  -n --number-of-worker <num> Number of workers (default off)\n"
           "  -m --run-manager            Runs manager (default off)\n"
+          "  -p --port-wk-start          Port start for workers (default -1)\n"
           "\n");
 
   exit(exit_code);
@@ -27,19 +28,21 @@ int main(int argc, char **argv) {
   int next_option;
 
   /* A string listing valid short options letters. */
-  const char *const short_options = "hvb:c:w:n:m";
+  const char *const short_options = "hvb:c:w:n:mp:";
   /* An array describing valid long options. */
   const struct option long_options[] = {
-      {"help", 0, NULL, 'h'},   {"verbose", 0, NULL, 'v'},
-      {"base", 1, NULL, 'b'},   {"connect", 1, NULL, 'c'},
-      {"worker", 1, NULL, 'w'}, {"number-of-workers", 1, NULL, 'n'},
-      {"manager", 0, NULL, 'm'}};
+      {"help", 0, NULL, 'h'},    {"verbose", 0, NULL, 'v'},
+      {"base", 1, NULL, 'b'},    {"connect", 1, NULL, 'c'},
+      {"worker", 1, NULL, 'w'},  {"number-of-workers", 1, NULL, 'n'},
+      {"manager", 0, NULL, 'm'}, {"port-wk-start", 1, NULL, 'p'}};
 
+  char *hostname = zsys_hostname();
   bool verbose = false;
   char *url_base = 0;
   char *url_base_connect = 0;
   char *url_worker = strdup("wk-");
   bool run_manager = 0;
+  int wk_port_start = -1;
   int n_workers = 0;
   do {
     next_option = getopt_long(argc, argv, short_options, long_options, NULL);
@@ -65,6 +68,9 @@ int main(int argc, char **argv) {
       break;
     case 'm':
       run_manager = true;
+      break;
+    case 'p':
+      wk_port_start = atoi(optarg);
       break;
     case '?':
       /* The user specified an invalid option. */
@@ -111,19 +117,29 @@ int main(int argc, char **argv) {
     zpoller_add(poller, zactor_sock(manager));
   }
 
+  if (wk_port_start < 10000 && wk_port_start > 0) {
+    printf("E: worker port has to be higher then 10000!!!\n");
+    help(stderr, 1);
+  }
+
   zlist_t *list_workers = zlist_new();
   zactor_t *worker = 0;
-  for (int i = 0; i < n_workers; i++) {
-
+  for (int i = wk_port_start + 1; i < n_workers + wk_port_start + 1; i++) {
     if (url_base_connect) {
       printf("Worker %d is connecting to %s ...\n", i, url_base_connect);
-      worker = zactor_new(zgossip, (void *)zsys_sprintf("wk-%d", i));
+      char *wk_name = zsys_sprintf("%s-wk-%d", hostname, i);
+      worker = zactor_new(zgossip, (void *)wk_name);
       assert(worker);
       if (verbose)
         zstr_send(worker, "VERBOSE");
       zstr_sendx(worker, "CONNECT", url_base_connect, NULL);
-      zstr_sendx(worker, "PUBLISH", zsys_sprintf("%s%d", url_worker, i),
-                 zsys_sprintf("val:%d", i), NULL);
+      char *wk_bind = 0;
+      if (wk_port_start < 0)
+        wk_bind = zsys_sprintf("%s%s-%d", url_worker, hostname, i);
+      else
+        wk_bind = zsys_sprintf("%s%s:%d", url_worker, hostname, i);
+      zstr_sendx(worker, "PUBLISH", wk_name, wk_bind, NULL);
+      zstr_free(&wk_bind);
       zpoller_add(poller, zactor_sock(worker));
       zlist_append(list_workers, worker);
     }
@@ -182,6 +198,8 @@ int main(int argc, char **argv) {
     free(url_base_connect);
   if (url_worker)
     free(url_worker);
+
+  zstr_free(&hostname);
 
   return 0;
 }
