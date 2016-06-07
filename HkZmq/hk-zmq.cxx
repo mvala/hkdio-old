@@ -126,7 +126,8 @@ int main(int argc, char **argv) {
   zactor_t *worker = 0;
   for (int i = wk_port_start + 1; i < n_workers + wk_port_start + 1; i++) {
     if (url_base_connect) {
-      printf("Worker %d is connecting to %s ...\n", i, url_base_connect);
+      printf("Worker %d is connecting to %s ...\n", i - wk_port_start - 1,
+             url_base_connect);
       char *wk_name = zsys_sprintf("%s-wk-%d", hostname, i);
       worker = zactor_new(zgossip, (void *)wk_name);
       assert(worker);
