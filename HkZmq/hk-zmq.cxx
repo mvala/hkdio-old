@@ -177,8 +177,8 @@ int main(int argc, char **argv) {
       free(value);
       zmsg_destroy(&msg);
     }
+    /// we are dropping other traffic
   }
-  /// we are dropping other traffic
 
   zactor_t *actor = (zactor_t *)zlist_first(list_workers);
   while (actor) {
