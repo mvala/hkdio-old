@@ -26,6 +26,8 @@ endif (ROOT_VERSION_MAJOR GREATER 5)
 include(root-utils)
 find_package(AliRoot)
 
+find_package(libzmq REQUIRED)
+find_package(czmq REQUIRED)
 
 option (OPENMP "Use OpenMP" ON)
 
@@ -58,6 +60,7 @@ include(CPack)
 
 add_subdirectory(HkBase)
 add_subdirectory(HkTasks)
+add_subdirectory(HkZmq)
 add_subdirectory(HkALICE)
 add_subdirectory(doc)
 
