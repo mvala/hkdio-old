@@ -1,8 +1,6 @@
 #include <getopt.h>
 #include <czmq.h>
 #include <HkdioConfig.h>
-/* The name of this program. */
-const char *program_name;
 
 void help(FILE *stream, int exit_code) {
 
@@ -17,7 +15,8 @@ void help(FILE *stream, int exit_code) {
           "  -w --worker <url>           Worker prefix url (default off)\n"
           "  -n --number-of-worker <num> Number of workers (default off)\n"
           "  -m --run-manager            Runs manager (default off)\n"
-          "  -p --port-wk-start          Port start for workers (default -1)\n"
+          "  -p --port-wk-start          Port start for workers in case tcp:// "
+          "prefix (default -1)\n"
           "\n");
 
   exit(exit_code);
