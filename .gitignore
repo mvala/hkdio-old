@@ -32,6 +32,9 @@
 .cproject
 .project
 
+# VS
+.vscode
+
 # Project specific
 pars
 build
