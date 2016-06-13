@@ -28,6 +28,7 @@ find_package(AliRoot)
 
 find_package(libzmq REQUIRED)
 find_package(czmq REQUIRED)
+find_package(zyre REQUIRED)
 
 option (OPENMP "Use OpenMP" ON)
 
