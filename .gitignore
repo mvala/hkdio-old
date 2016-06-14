@@ -33,7 +33,7 @@
 .project
 
 # VS
-.vscode
+.vscode/*.db
 
 # Project specific
 pars
@@ -44,3 +44,4 @@ bin
 lib
 lib64
 include
+

@@ -1,6 +1,9 @@
+#include <HkdioConfig.h>
+
 #include <getopt.h>
 #include <zyre.h>
-#include <HkdioConfig.h>
+#include <THnSparse.h>
+#include <TBufferFile.h>
 
 void help(FILE *stream, int exit_code) {
 
@@ -9,6 +12,9 @@ void help(FILE *stream, int exit_code) {
   fprintf(stream, "Usage options\n");
   fprintf(stream, "  -h --help                   Display help\n"
                   "  -v --verbose                Verbose (default off)\n"
+                  "  -b --bin                    Is bin (default off)\n"
+                  "  -f --fill                   Is fill (default off)\n"
+                  "  -n --name <name>            Name (default 'node')\n"
                   "\n");
 
   exit(exit_code);
@@ -19,15 +25,20 @@ int main(int argc, char **argv) {
   int next_option;
 
   /* A string listing valid short options letters. */
-  const char *const short_options = "hvn:";
+  const char *const short_options = "hvbfn:";
   /* An array describing valid long options. */
   const struct option long_options[] = {{"help", 0, NULL, 'h'},
                                         {"verbose", 0, NULL, 'v'},
+                                        {"bin", 1, NULL, 'b'},
+                                        {"fill", 1, NULL, 'f'},
                                         {"name", 1, NULL, 'n'}};
 
   char *hostname = zsys_hostname();
   bool verbose = false;
   char *name = strdup("node");
+  bool is_bin = false;
+  bool is_fill = false;
+
   do {
     next_option = getopt_long(argc, argv, short_options, long_options, NULL);
     switch (next_option) {
@@ -36,6 +47,12 @@ int main(int argc, char **argv) {
       break;
     case 'v':
       verbose = true;
+      break;
+    case 'b':
+      is_bin = true;
+      break;
+    case 'f':
+      is_fill = true;
       break;
     case 'n':
       free(name);
@@ -64,7 +81,10 @@ int main(int argc, char **argv) {
 
   zyre_t *node = zyre_new(name);
   assert(node);
-  zyre_set_header(node, "X-HELLO", "World");
+  if (is_bin)
+    zyre_set_header(node, "X-ZHIST-BIN", "XXX");
+  if (is_fill)
+    zyre_set_header(node, "X-ZHIST-FILL", "XXX");
   if (verbose)
     zyre_set_verbose(node);
   zpoller_add(poller, zyre_socket(node));
@@ -74,6 +94,17 @@ int main(int argc, char **argv) {
     return 1;
   };
 
+  Int_t bins[2] = {10, 20};
+  Double_t min[2] = {0., -5.};
+  Double_t max[2] = {10., 5.};
+  THnSparse *hs = new THnSparseD("hs", "hs", 2, bins, min, max);
+  Double_t val[2];
+  Int_t n=10;
+  for (Int_t i = 0; i < n; i++) {
+    val[0] = i;
+    val[1] = i-5;
+    hs->Fill(val);
+  }
   zmsg_t *msg;
   while (!zsys_interrupted) {
     zsock_t *which = (zsock_t *)zpoller_wait(poller, -1);
@@ -89,19 +120,62 @@ int main(int argc, char **argv) {
       const char *peer_name = zyre_event_peer_name(event);
       msg = zyre_event_msg(event);
       char *msg_str = 0;
-      if (msg)
+      if (msg) {
         msg_str = zmsg_popstr(msg);
+        zframe_t *buf = zmsg_pop(msg);
+        if (buf) {
+          zsys_info("Recieved %lld bytes", zframe_size(buf));
 
-      printf("%s[%s]: %s %s %s %s\n", zyre_name(node), hostname, type,
-             peer_uuid, peer_name, msg_str);
-      
-      if (streq(zyre_event_type(event), "ENTER")) {
-        zyre_whispers(node, peer_uuid, "Testing from %s ", zyre_name(node));
+          TBufferFile buf_file(TBuffer::kRead, zframe_size(buf),
+                               zframe_data(buf), false);
+          THnSparse *hsOut =
+              (THnSparse *)(buf_file.ReadObjectAny(THnSparse::Class()));
+          if (hsOut)
+            zsys_info("R: bins=%lld", hs->GetNbins());
+          else
+            zsys_error("no hsOut!!!");
+          hsOut->Print("all");
+          delete hsOut;
+        }
       }
-      
+      zsys_info("%s[%s]: %s %s %s %s", zyre_name(node), hostname, type,
+                peer_uuid, peer_name, msg_str);
+
+      if (streq(zyre_event_type(event), "ENTER")) {
+        if (zyre_event_header(event, "X-ZHIST-BIN")) {
+          zsys_info("%s: %s is X-ZHIST-BIN (%s)", zyre_name(node), peer_uuid,
+                    zyre_event_header(event, "X-ZHIST-BIN"));
+        }
+        if (zyre_event_header(event, "X-ZHIST-FILL")) {
+          zsys_info("%s: %s is X-ZHIST-FILL (%s)", zyre_name(node), peer_uuid,
+                    zyre_event_header(event, "X-ZHIST-FILL"));
+        }
+        if (hs&&zyre_event_header(event, "X-ZHIST-BIN")) {
+          zmsg_t *msg_hist = zmsg_new();
+
+          // source server and client :
+          // https://root.cern.ch/root/roottalk/roottalk11/att-1290/server.cpp
+          // https://root.cern.ch/root/roottalk/roottalk11/att-1290/client.cpp
+          TBufferFile bf(TBuffer::kWrite);
+          bf.Reset();
+          if (bf.WriteObjectAny(hs, hs->Class()) != 1) {
+            zsys_error("failed to serialize root object!");
+            return 1;
+          }
+          zsys_info("S: bins=%lld", hs->GetNbins());
+
+          zmsg_addstr(msg_hist, "zhist");
+          zmsg_addmem(msg_hist, bf.Buffer(), bf.Length());
+          zsys_info("Sending %lld bytes", bf.Length());
+          zyre_whisper(node, peer_uuid, &msg_hist);
+        } else {
+          zyre_whispers(node, peer_uuid, "Testing from %s ", zyre_name(node));
+        }
+      }
+
       if (msg_str)
         free(msg_str);
-      
+
       zyre_event_destroy(&event);
     }
   }

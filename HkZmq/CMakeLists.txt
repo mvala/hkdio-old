@@ -22,7 +22,7 @@ add_executable (hk-zmq hk-zmq.cxx)
 target_link_libraries (hk-zmq ${LIBZMQ_LIBRARIES} ${CZMQ_LIBRARIES})
 
 add_executable (hk-zyre hk-zyre.cxx)
-target_link_libraries (hk-zyre ${LIBZMQ_LIBRARIES} ${CZMQ_LIBRARIES} ${ZYRE_LIBRARIES})
+target_link_libraries (hk-zyre ${LIBZMQ_LIBRARIES} ${CZMQ_LIBRARIES} ${ZYRE_LIBRARIES} ${ROOT_LIBRARIES})
 
-set(TARGETS hk-zmq)
+set(TARGETS hk-zmq hk-zyre)
 install(TARGETS ${TARGETS} RUNTIME DESTINATION bin COMPONENT RUNTIME)
