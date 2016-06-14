@@ -33,7 +33,8 @@
 .project
 
 # VS
-.vscode/*.db
+.vscode/*
+!.vscode/*.json
 
 # Project specific
 pars
