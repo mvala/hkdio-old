@@ -7,7 +7,7 @@
             "request": "launch",
             "launchOptionType": "Local",
             "targetArchitecture": "x64",
-            "program": "build/HkZmq/hk-zyre",
+            "program": "${workspaceRoot}/build/HkZmq/hk-zyre",
             "args": ["-n","node1"],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}",

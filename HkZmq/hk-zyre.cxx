@@ -1,4 +1,4 @@
-#include <HkdioConfig.h>
+#include "HkdioConfig.h"
 
 #include <getopt.h>
 #include <zyre.h>

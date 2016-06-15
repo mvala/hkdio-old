@@ -6,7 +6,7 @@
         },
         {
             "name": "Linux",
-            "includePath": ["/usr/include"]
+            "includePath": ["/usr/include", "/opt/root/include" ]
         },
         {
             "name": "Win32",
