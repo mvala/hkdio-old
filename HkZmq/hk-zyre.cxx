@@ -94,17 +94,6 @@ int main(int argc, char **argv) {
     return 1;
   };
 
-  Int_t bins[2] = {10, 20};
-  Double_t min[2] = {0., -5.};
-  Double_t max[2] = {10., 5.};
-  THnSparse *hs = new THnSparseD("hs", "hs", 2, bins, min, max);
-  Double_t val[2];
-  Int_t n=10;
-  for (Int_t i = 0; i < n; i++) {
-    val[0] = i;
-    val[1] = i-5;
-    hs->Fill(val);
-  }
   zmsg_t *msg;
   while (!zsys_interrupted) {
     zsock_t *which = (zsock_t *)zpoller_wait(poller, -1);
@@ -130,9 +119,7 @@ int main(int argc, char **argv) {
                                zframe_data(buf), false);
           THnSparse *hsOut =
               (THnSparse *)(buf_file.ReadObjectAny(THnSparse::Class()));
-          if (hsOut)
-            zsys_info("R: bins=%lld", hs->GetNbins());
-          else
+          if (!hsOut)
             zsys_error("no hsOut!!!");
           hsOut->Print("all");
           delete hsOut;
@@ -150,8 +137,20 @@ int main(int argc, char **argv) {
           zsys_info("%s: %s is X-ZHIST-FILL (%s)", zyre_name(node), peer_uuid,
                     zyre_event_header(event, "X-ZHIST-FILL"));
         }
-        if (hs&&zyre_event_header(event, "X-ZHIST-BIN")) {
+        if (zyre_event_header(event, "X-ZHIST-BIN")) {
           zmsg_t *msg_hist = zmsg_new();
+
+          Int_t bins[2] = {10, 20};
+          Double_t min[2] = {0., -5.};
+          Double_t max[2] = {10., 5.};
+          THnSparse *hs = new THnSparseD("hs", "hs", 2, bins, min, max);
+          Double_t val[2];
+          Int_t n = 10;
+          for (Int_t i = 0; i < n; i++) {
+            val[0] = i;
+            val[1] = i - 5;
+            hs->Fill(val);
+          }
 
           // source server and client :
           // https://root.cern.ch/root/roottalk/roottalk11/att-1290/server.cpp
@@ -162,7 +161,6 @@ int main(int argc, char **argv) {
             zsys_error("failed to serialize root object!");
             return 1;
           }
-          zsys_info("S: bins=%lld", hs->GetNbins());
 
           zmsg_addstr(msg_hist, "zhist");
           zmsg_addmem(msg_hist, bf.Buffer(), bf.Length());
