@@ -29,8 +29,8 @@ int main(int argc, char **argv) {
   /* An array describing valid long options. */
   const struct option long_options[] = {{"help", 0, NULL, 'h'},
                                         {"verbose", 0, NULL, 'v'},
-                                        {"bin", 1, NULL, 'b'},
-                                        {"fill", 1, NULL, 'f'},
+                                        {"bin", 0, NULL, 'b'},
+                                        {"fill", 0, NULL, 'f'},
                                         {"name", 1, NULL, 'n'}};
 
   char *hostname = zsys_hostname();
