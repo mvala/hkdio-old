@@ -177,7 +177,7 @@ void HkTask::Finish(Option_t *option) {
 }
 
 void HkTask::Browse(TBrowser *b) {
-  fTasks->Browse(b);
+  TTask::Browse(b);
   if (fOutput)
     fOutput->Browse(b);
 }
