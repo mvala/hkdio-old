@@ -11,11 +11,13 @@ void help(FILE *stream, int exit_code) {
   fprintf(stream, "\n%s %d.%d.%d\n\n", HKDIO_NAME, HKDIO_VERSION_MAJOR,
           HKDIO_VERSION_MINOR, HKDIO_VERSION_PATCH);
   fprintf(stream, "Usage options\n");
-  fprintf(stream, "  -h --help                   Display help\n"
-                  "  -v --verbose                Verbose (default off)\n"
-                  "  -g --gossip <url>           Gossip url (e.g. "
-                  "\"inproc://gossip-hub\") (default off)\n"
-                  "\n");
+  fprintf(stream,
+          "  -h --help                   Display help\n"
+          "  -v --verbose                Verbose (default off)\n"
+          "  -b --bins                   Number of bin workers (default 0)\n"
+          "  -g --gossip <url>           Gossip url (e.g. "
+          "\"inproc://gossip-hub\") (default off)\n"
+          "\n");
 
   exit(exit_code);
 }
@@ -25,14 +27,16 @@ int main(int argc, char **argv) {
   int next_option;
 
   /* A string listing valid short options letters. */
-  const char *const short_options = "hvg:";
+  const char *const short_options = "hvb:g:";
   /* An array describing valid long options. */
   const struct option long_options[] = {{"help", 0, NULL, 'h'},
                                         {"verbose", 0, NULL, 'v'},
+                                        {"bins", 1, NULL, 'b'},
                                         {"gossip", 1, NULL, 'g'}};
 
   bool verbose = false;
   char *gossip_url = 0;
+  int n_bins = 0;
 
   do {
     next_option = getopt_long(argc, argv, short_options, long_options, NULL);
@@ -42,6 +46,9 @@ int main(int argc, char **argv) {
       break;
     case 'v':
       verbose = true;
+      break;
+    case 'b':
+      n_bins = atoi(optarg);
       break;
     case 'g':
       free(gossip_url);
@@ -75,7 +82,7 @@ int main(int argc, char **argv) {
       zyre_set_verbose(node_gossip);
 
     //  Set inproc endpoint for this node
-    zyre_set_endpoint(node_gossip, "inproc://zyre-node1");
+    // zyre_set_endpoint(node_gossip, "inproc://zyre-node1");
     zyre_gossip_bind(node_gossip, gossip_url);
     zyre_start(node_gossip);
   }
@@ -94,8 +101,8 @@ int main(int argc, char **argv) {
   // h->SetFiller(1, "F");
   // h->SetFiller(2, "F");
 
-  for (int i = 0; i < 5; i++) {
-    char bin_name[100];
+  for (int i = 0; i < n_bins; i++) {
+    char bin_name[32];
     snprintf(bin_name, sizeof(bin_name), "B%d", i);
     h->SetBin(i, bin_name);
   }
