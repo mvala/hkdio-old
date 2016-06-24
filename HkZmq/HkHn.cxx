@@ -115,15 +115,16 @@ void HkHn::StartFiller(zsock_t *pipe, void *args) {
       if (!event)
         break;
 
-      // if (streq(zyre_event_type(event), "ENTER")) {
+      if (streq(zyre_event_type(event), "ENTER")) {
 
-      // } else if (streq(zyre_event_type(event), "EXIT")) {
-      //   // One bin exits
-      // }
+      } else if (streq(zyre_event_type(event), "EXIT")) {
+        // One bin exits
+      } else {
 
-      zsys_info("%s[%s]: %s %s %s", zyre_name(node), hostname,
-                zyre_event_type(event), zyre_event_peer_uuid(event),
-                zyre_event_peer_name(event));
+        zsys_info("%s[%s]: %s %s %s", zyre_name(node), hostname,
+                  zyre_event_type(event), zyre_event_peer_uuid(event),
+                  zyre_event_peer_name(event));
+      }
       zyre_event_destroy(&event);
     }
   }
@@ -182,10 +183,16 @@ void HkHn::StartBin(zsock_t *pipe, void *args) {
       zyre_event_t *event = zyre_event_new(node);
       if (!event)
         break;
-      zsys_info("%s[%s]: %s %s %s", zyre_name(node), hostname,
-                zyre_event_type(event), zyre_event_peer_uuid(event),
-                zyre_event_peer_name(event));
-      zyre_event_destroy(&event);
+      if (streq(zyre_event_type(event), "ENTER")) {
+
+      } else if (streq(zyre_event_type(event), "EXIT")) {
+        // One bin exits
+      } else {
+
+        zsys_info("%s[%s]: %s %s %s", zyre_name(node), hostname,
+                  zyre_event_type(event), zyre_event_peer_uuid(event),
+                  zyre_event_peer_name(event));
+      }
     }
   }
   zyre_stop(node);
@@ -194,15 +201,14 @@ void HkHn::StartBin(zsock_t *pipe, void *args) {
 }
 
 void HkHn::Print(bool verbose) {
-  cout << "Number of fillers: " << fFillers.size() << endl;
+  zsys_info("Number of fillers: %d", fFillers.size());
   if (verbose) {
     for (map<int, string>::iterator ii = fFillers.begin(); ii != fFillers.end();
          ++ii) {
       cout << (*ii).first << ": " << (*ii).second << endl;
     }
   }
-
-  cout << "Number of bins: " << fBins.size() << endl;
+  zsys_info("Number of bins: %d", fBins.size());
   if (verbose) {
     for (map<int, string>::iterator ii = fBins.begin(); ii != fBins.end();
          ++ii) {
@@ -235,8 +241,15 @@ Int_t HkHn::FillFast(Double_t *val, Double_t w) {
   printf("Using %s as filler %d ...\n", fFillIter->second.data(),
          fFillIter->first);
 
-  fFillIter++;
   Int_t iBin = fHist->Fill(val, w);
+  if (iBin > 0) {
+    // TODO find bin worker
+    zsys_info("Sending it to bin %d and worker with name=%s", iBin,
+              fBins[iBin].data());
+              // zyre_whispers()
+  }
+
+  fFillIter++;
 
   return iBin;
 }

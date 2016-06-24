@@ -5,7 +5,7 @@
 
 #include <HkHn.h>
 #include <THnSparse.h>
-
+#include <TRandom.h>
 void help(FILE *stream, int exit_code) {
 
   fprintf(stream, "\n%s %d.%d.%d\n\n", HKDIO_NAME, HKDIO_VERSION_MAJOR,
@@ -93,10 +93,10 @@ int main(int argc, char **argv) {
   }
   HkHn *h = new HkHn();
 
-  const Int_t nDim = 2;
-  Int_t bins[nDim] = {10, 20};
-  Double_t min[nDim] = {0., -5.};
-  Double_t max[nDim] = {10., 5.};
+  const Int_t nDim = 1;
+  Int_t bins[nDim] = {10};
+  Double_t min[nDim] = {0.};
+  Double_t max[nDim] = {10.};
   THnSparse *hs = new THnSparseD("hs", "hs", nDim, bins, min, max);
   h->SetHistogram(hs);
   if (node_gossip && gossip_url)
@@ -119,11 +119,10 @@ int main(int argc, char **argv) {
   h->Print(verbose);
   Double_t fill_val[nDim];
   for (Int_t i = 0; i < 100; ++i) {
-    fill_val[0] = i % 10;
-    fill_val[1] = (i + 2) % 10;
+      fill_val[0] =(Double_t)(gRandom->Gaus(0,10));
     Int_t iBin = h->Fill(hs->GetNdimensions(), fill_val);
     // Int_t iBin = h->FillFast(fill_val);
-    printf("Filled bin : %d\n", iBin);
+    zsys_info("Filled bin : %d", iBin);
   }
 
   hs = h->GetHistogram();
