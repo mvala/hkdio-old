@@ -15,6 +15,7 @@ void help(FILE *stream, int exit_code) {
           "  -h --help                   Display help\n"
           "  -v --verbose                Verbose (default off)\n"
           "  -b --bins                   Number of bin workers (default 0)\n"
+          "  -f --fillers                   Number of fillers (default 0)\n"
           "  -g --gossip <url>           Gossip url (e.g. "
           "\"inproc://gossip-hub\") (default off)\n"
           "\n");
@@ -27,17 +28,18 @@ int main(int argc, char **argv) {
   int next_option;
 
   /* A string listing valid short options letters. */
-  const char *const short_options = "hvb:g:";
+  const char *const short_options = "hvb:f:g:";
   /* An array describing valid long options. */
   const struct option long_options[] = {{"help", 0, NULL, 'h'},
                                         {"verbose", 0, NULL, 'v'},
                                         {"bins", 1, NULL, 'b'},
+                                        {"fillers", 1, NULL, 'f'},
                                         {"gossip", 1, NULL, 'g'}};
 
   bool verbose = false;
   char *gossip_url = 0;
   int n_bins = 0;
-
+  int n_fillers = 1;
   do {
     next_option = getopt_long(argc, argv, short_options, long_options, NULL);
     switch (next_option) {
@@ -49,6 +51,9 @@ int main(int argc, char **argv) {
       break;
     case 'b':
       n_bins = atoi(optarg);
+      break;
+    case 'f':
+      n_fillers = atoi(optarg);
       break;
     case 'g':
       free(gossip_url);
@@ -97,9 +102,11 @@ int main(int argc, char **argv) {
   if (node_gossip && gossip_url)
     h->SetDiscovery(gossip_url);
 
-  h->SetFiller(0, "F");
-  // h->SetFiller(1, "F");
-  // h->SetFiller(2, "F");
+  for (int i = 0; i < n_fillers; i++) {
+    char fill_name[32];
+    snprintf(fill_name, sizeof(fill_name), "F%d", i);
+    h->SetFiller(i, fill_name);
+  }
 
   for (int i = 0; i < n_bins; i++) {
     char bin_name[32];
@@ -111,9 +118,9 @@ int main(int argc, char **argv) {
 
   h->Print(verbose);
   Double_t fill_val[nDim];
-  for (Int_t i = 0; i < 10; ++i) {
-    fill_val[0] = i;
-    fill_val[1] = 5 - i;
+  for (Int_t i = 0; i < 100; ++i) {
+    fill_val[0] = i % 10;
+    fill_val[1] = (i + 2) % 10;
     Int_t iBin = h->Fill(hs->GetNdimensions(), fill_val);
     // Int_t iBin = h->FillFast(fill_val);
     printf("Filled bin : %d\n", iBin);

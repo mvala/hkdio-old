@@ -51,7 +51,7 @@ bool HkHn::Start() {
 
 bool HkHn::Stop() {
 
-  // zclock_sleep(1000);
+  zclock_sleep(1000);
 
   zactor_t *actor = (zactor_t *)zlist_first(fListOfActors);
   while (actor) {
