@@ -1,13 +1,11 @@
 #!/bin/bash
 
-HK_DIR="$(dirname $(dirname $(readlink -m $0)))"
+SALSA_DIR="$(dirname $(dirname $(readlink -m $0)))"
 
-[ "$1" = "clean" ] && rm -rf $HK_DIR/build
-[ -d $HK_DIR/build ] ||  mkdir $HK_DIR/build
+[ "$1" = "clean" ] && { shift; rm -rf $SALSA_DIR/build; }
+[ -d $SALSA_DIR/build ] ||  mkdir $SALSA_DIR/build
 
-[ -n "$ALICE_ROOT" ] && HK_ALICE="-DALIROOT=$ALICE_ROOT"
-
-cd $HK_DIR/build || exit 1
-[ -f Makefile ] || cmake -DCMAKE_INSTALL_PREFIX=$HK_DIR -DCMAKE_BUILD_TYPE=RelWithDebInfo $HK_ALICE $HK_EXTRA ../
-make -j$(nproc) install
+cd $SALSA_DIR/build || exit 1
+[ -f Makefile ] || cmake -DCMAKE_INSTALL_PREFIX=$SALSA_DIR -DCMAKE_BUILD_TYPE=RelWithDebInfo ../
+make -j$(nproc) $*
 
